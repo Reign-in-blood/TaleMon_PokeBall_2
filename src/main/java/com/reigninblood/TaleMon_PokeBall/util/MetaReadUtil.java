@@ -3,12 +3,14 @@ package com.reigninblood.TaleMon_PokeBall.util;
 
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public final class MetaReadUtil {
    private MetaReadUtil() {
    }
 
-   public static com.reigninblood.TaleMon_PokeBall.util.MetaReadUtil.Captured readCapturedEntity(BsonDocument meta) {
+   public static Captured readCapturedEntity(BsonDocument meta) {
       if (meta == null) {
          return null;
       } else {
@@ -27,10 +29,73 @@ public final class MetaReadUtil {
                npcNameKey = nk.asString().getValue();
             }
 
-            return roleIndex == null && npcNameKey == null ? null : new com.reigninblood.TaleMon_PokeBall.util.MetaReadUtil.Captured(roleIndex, npcNameKey);
+            return roleIndex == null && npcNameKey == null ? null : new Captured(roleIndex, npcNameKey);
          } else {
             return null;
          }
       }
+   }
+
+   public static Integer readRoleIndex(Object capturedNpcMetadata) {
+      if (capturedNpcMetadata == null) {
+         return null;
+      }
+
+      Integer byMethod = readRoleIndexByMethod(capturedNpcMetadata, "getRoleIndex");
+      if (byMethod != null) {
+         return byMethod;
+      }
+
+      byMethod = readRoleIndexByMethod(capturedNpcMetadata, "roleIndex");
+      if (byMethod != null) {
+         return byMethod;
+      }
+
+      byMethod = readRoleIndexByMethod(capturedNpcMetadata, "getRole");
+      if (byMethod != null) {
+         return byMethod;
+      }
+
+      byMethod = readRoleIndexByMethod(capturedNpcMetadata, "getRoleId");
+      if (byMethod != null) {
+         return byMethod;
+      }
+
+      return readRoleIndexByField(capturedNpcMetadata, "roleIndex");
+   }
+
+   private static Integer readRoleIndexByMethod(Object capturedNpcMetadata, String methodName) {
+      try {
+         Method method = capturedNpcMetadata.getClass().getMethod(methodName);
+         Object value = method.invoke(capturedNpcMetadata);
+         if (value instanceof Integer) {
+            return (Integer)value;
+         }
+
+         if (value instanceof Number) {
+            return ((Number)value).intValue();
+         }
+      } catch (Throwable ignored) {
+      }
+
+      return null;
+   }
+
+   private static Integer readRoleIndexByField(Object capturedNpcMetadata, String fieldName) {
+      try {
+         Field field = capturedNpcMetadata.getClass().getDeclaredField(fieldName);
+         field.setAccessible(true);
+         Object value = field.get(capturedNpcMetadata);
+         if (value instanceof Integer) {
+            return (Integer)value;
+         }
+
+         if (value instanceof Number) {
+            return ((Number)value).intValue();
+         }
+      } catch (Throwable ignored) {
+      }
+
+      return null;
    }
 }
