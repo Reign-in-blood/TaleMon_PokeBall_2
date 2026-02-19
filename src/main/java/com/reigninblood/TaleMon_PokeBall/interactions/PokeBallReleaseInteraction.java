@@ -27,6 +27,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.npc.metadata.CapturedNPCMetadata;
 import com.reigninblood.TaleMon_PokeBall.util.ConsumeUtil;
+import com.reigninblood.TaleMon_PokeBall.util.MetaReadUtil;
 import com.reigninblood.TaleMon_PokeBall.util.SpawnPosUtil;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
@@ -83,7 +84,14 @@ public class PokeBallReleaseInteraction extends SimpleInstantInteraction {
                         }
 
                         finalSpawnPos = SpawnPosUtil.makeSafe(spawnPos);
-                        int roleIndex = meta.getRoleIndex();
+                        Integer roleIndexValue = MetaReadUtil.readRoleIndex(meta);
+                        if (roleIndexValue == null) {
+                           HytaleLogger.getLogger().at(Level.INFO).log("[TaleMon_PokeBall] RELEASE_FAIL roleIndex unavailable");
+                           context.getState().state = InteractionState.Failed;
+                           return;
+                        }
+
+                        int roleIndex = roleIndexValue;
                         String nameKey = meta.getNpcNameKey();
                         NPCPlugin npcPlugin = NPCPlugin.get();
                         HytaleLogger.getLogger().at(Level.INFO).log("[TaleMon_PokeBall] RELEASE_USE roleIndex=%s npc=%s pos=%s face=%s", roleIndex, nameKey, finalSpawnPos, face == null ? "null" : face.name());
