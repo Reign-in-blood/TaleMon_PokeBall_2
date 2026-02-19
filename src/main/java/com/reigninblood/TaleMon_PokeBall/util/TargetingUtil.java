@@ -34,7 +34,7 @@ public final class TargetingUtil {
             forward.rotateX(headRot.getPitch());
             forward.normalize();
             Vector3d forwardDir = new Vector3d((double)forward.x, (double)forward.y, (double)forward.z);
-            com.reigninblood.TaleMon_PokeBall.util.TargetingUtil.BestCandidate best = new com.reigninblood.TaleMon_PokeBall.util.TargetingUtil.BestCandidate();
+            BestCandidate best = new BestCandidate();
             store.forEachChunk(Query.any(), (chunk, buffer) -> {
                int size = chunk.size();
 
@@ -85,10 +85,5 @@ public final class TargetingUtil {
       }
 
       return null;
-   }
-
-   private static final class BestCandidate {
-      private double score = Double.NEGATIVE_INFINITY;
-      private UUID uuid;
    }
 }

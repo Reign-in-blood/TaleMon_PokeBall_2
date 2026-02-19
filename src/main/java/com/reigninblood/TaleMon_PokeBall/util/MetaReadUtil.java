@@ -10,7 +10,7 @@ public final class MetaReadUtil {
    private MetaReadUtil() {
    }
 
-   public static com.reigninblood.TaleMon_PokeBall.util.MetaReadUtil.Captured readCapturedEntity(BsonDocument meta) {
+   public static Captured readCapturedEntity(BsonDocument meta) {
       if (meta == null) {
          return null;
       } else {
@@ -29,7 +29,7 @@ public final class MetaReadUtil {
                npcNameKey = nk.asString().getValue();
             }
 
-            return roleIndex == null && npcNameKey == null ? null : new com.reigninblood.TaleMon_PokeBall.util.MetaReadUtil.Captured(roleIndex, npcNameKey);
+            return roleIndex == null && npcNameKey == null ? null : new Captured(roleIndex, npcNameKey);
          } else {
             return null;
          }
@@ -97,23 +97,5 @@ public final class MetaReadUtil {
       }
 
       return null;
-   }
-
-   public static final class Captured {
-      private final Integer roleIndex;
-      private final String npcNameKey;
-
-      public Captured(Integer roleIndex, String npcNameKey) {
-         this.roleIndex = roleIndex;
-         this.npcNameKey = npcNameKey;
-      }
-
-      public Integer getRoleIndex() {
-         return this.roleIndex;
-      }
-
-      public String getNpcNameKey() {
-         return this.npcNameKey;
-      }
    }
 }
