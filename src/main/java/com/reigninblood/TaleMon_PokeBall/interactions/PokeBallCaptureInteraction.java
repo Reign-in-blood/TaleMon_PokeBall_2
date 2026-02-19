@@ -19,6 +19,7 @@ import com.reigninblood.TaleMon_PokeBall.util.DespawnUtil;
 import com.reigninblood.TaleMon_PokeBall.util.GiveUtil;
 import com.reigninblood.TaleMon_PokeBall.util.MetaUtil;
 import com.reigninblood.TaleMon_PokeBall.util.PokemonList;
+import java.lang.reflect.Field;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
@@ -48,17 +49,11 @@ public class PokeBallCaptureInteraction extends SimpleInstantInteraction {
                context.getState().state = InteractionState.Failed;
             } else {
                Object role = npc.getRole();
-               int roleIndex = -1;
-               String roleName = "Unknown";
-
-               try {
-                  roleIndex = (Integer)role.getClass().getMethod("getRoleIndex").invoke(role);
-               } catch (Throwable var19) {
-               }
-
-               try {
-                  roleName = (String)role.getClass().getMethod("getRoleName").invoke(role);
-               } catch (Throwable var18) {
+               Integer roleIndexValue = readIntByMethodOrField(role, new String[]{"getRoleIndex", "roleIndex", "getRoleId", "getIndex"}, new String[]{"roleIndex", "roleId", "index"});
+               int roleIndex = roleIndexValue != null ? roleIndexValue : -1;
+               String roleName = readStringByMethodOrField(role, new String[]{"getRoleName", "roleName", "getName", "name"}, new String[]{"roleName", "name"});
+               if (roleName == null || roleName.isEmpty()) {
+                  roleName = "Unknown";
                }
 
                if (!PokemonList.isPokemon(roleName)) {
@@ -92,6 +87,90 @@ public class PokeBallCaptureInteraction extends SimpleInstantInteraction {
             context.getState().state = InteractionState.Failed;
          }
       }
+   }
+
+   private static Integer readIntByMethodOrField(Object source, String[] methods, String[] fields) {
+      if (source == null) {
+         return null;
+      }
+
+      int var3 = methods.length;
+
+      for(int var4 = 0; var4 < var3; ++var4) {
+         String methodName = methods[var4];
+
+         try {
+            Object value = source.getClass().getMethod(methodName).invoke(source);
+            if (value instanceof Integer) {
+               return (Integer)value;
+            }
+
+            if (value instanceof Number) {
+               return ((Number)value).intValue();
+            }
+         } catch (Throwable var10) {
+         }
+      }
+
+      var3 = fields.length;
+
+      for(int var11 = 0; var11 < var3; ++var11) {
+         String fieldName = fields[var11];
+
+         try {
+            Field field = source.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            Object value = field.get(source);
+            if (value instanceof Integer) {
+               return (Integer)value;
+            }
+
+            if (value instanceof Number) {
+               return ((Number)value).intValue();
+            }
+         } catch (Throwable var9) {
+         }
+      }
+
+      return null;
+   }
+
+   private static String readStringByMethodOrField(Object source, String[] methods, String[] fields) {
+      if (source == null) {
+         return null;
+      }
+
+      int var3 = methods.length;
+
+      for(int var4 = 0; var4 < var3; ++var4) {
+         String methodName = methods[var4];
+
+         try {
+            Object value = source.getClass().getMethod(methodName).invoke(source);
+            if (value instanceof String) {
+               return (String)value;
+            }
+         } catch (Throwable var9) {
+         }
+      }
+
+      var3 = fields.length;
+
+      for(int var10 = 0; var10 < var3; ++var10) {
+         String fieldName = fields[var10];
+
+         try {
+            Field field = source.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            Object value = field.get(source);
+            if (value instanceof String) {
+               return (String)value;
+            }
+         } catch (Throwable var8) {
+         }
+      }
+
+      return null;
    }
 
    private static String makePokemonFullBallItemId(String roleName) {

@@ -27,10 +27,13 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.npc.metadata.CapturedNPCMetadata;
 import com.reigninblood.TaleMon_PokeBall.util.ConsumeUtil;
+import com.reigninblood.TaleMon_PokeBall.util.Captured;
+import com.reigninblood.TaleMon_PokeBall.util.MetaReadUtil;
 import com.reigninblood.TaleMon_PokeBall.util.SpawnPosUtil;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
+import org.bson.BsonDocument;
 
 public class PokeBallReleaseInteraction extends SimpleInstantInteraction {
    public static final String ID = "talemon:pokeball_release";
@@ -62,8 +65,25 @@ public class PokeBallReleaseInteraction extends SimpleInstantInteraction {
                } else {
                   Player player = (Player)living;
                   CapturedNPCMetadata meta = (CapturedNPCMetadata)held.getFromMetadataOrNull("CapturedEntity", CapturedNPCMetadata.CODEC);
-                  if (meta == null) {
-                     HytaleLogger.getLogger().at(Level.INFO).log("[TaleMon_PokeBall] RELEASE_FAIL no CapturedEntity metadata");
+                  Integer extractedRoleIndex = null;
+                  String extractedNameKey = null;
+                  if (meta != null) {
+                     extractedRoleIndex = MetaReadUtil.readRoleIndex(meta);
+                     extractedNameKey = meta.getNpcNameKey();
+                  }
+
+                  if (extractedRoleIndex == null) {
+                     Captured rawCaptured = tryReadCapturedFromRawMetadata(held);
+                     if (rawCaptured != null) {
+                        extractedRoleIndex = rawCaptured.getRoleIndex();
+                        if (extractedNameKey == null || extractedNameKey.isEmpty()) {
+                           extractedNameKey = rawCaptured.getNpcNameKey();
+                        }
+                     }
+                  }
+
+                  if (extractedRoleIndex == null) {
+                     HytaleLogger.getLogger().at(Level.INFO).log("[TaleMon_PokeBall] RELEASE_FAIL no readable CapturedEntity metadata");
                      context.getState().state = InteractionState.Failed;
                   } else {
                      BlockPosition target = context.getTargetBlock();
@@ -76,15 +96,13 @@ public class PokeBallReleaseInteraction extends SimpleInstantInteraction {
                            face = BlockFace.fromProtocolFace(context.getClientState().blockFace);
                         }
 
-                        Vector3d finalSpawnPos;
                         if (face != null) {
-                           finalSpawnPos = new Vector3d(face.getDirection());
-                           spawnPos.add(finalSpawnPos);
+                           spawnPos.add(new Vector3d(face.getDirection()));
                         }
 
-                        finalSpawnPos = SpawnPosUtil.makeSafe(spawnPos);
-                        int roleIndex = meta.getRoleIndex();
-                        String nameKey = meta.getNpcNameKey();
+                        final Vector3d finalSpawnPos = SpawnPosUtil.makeSafe(spawnPos);
+                        final int roleIndex = extractedRoleIndex;
+                        final String nameKey = extractedNameKey;
                         NPCPlugin npcPlugin = NPCPlugin.get();
                         HytaleLogger.getLogger().at(Level.INFO).log("[TaleMon_PokeBall] RELEASE_USE roleIndex=%s npc=%s pos=%s face=%s", roleIndex, nameKey, finalSpawnPos, face == null ? "null" : face.name());
                         buffer.run((store) -> {
@@ -112,6 +130,22 @@ public class PokeBallReleaseInteraction extends SimpleInstantInteraction {
             context.getState().state = InteractionState.Failed;
          }
       }
+   }
+
+   private static Captured tryReadCapturedFromRawMetadata(ItemStack held) {
+      if (held == null) {
+         return null;
+      }
+
+      try {
+         Object raw = held.getClass().getMethod("getMetadata").invoke(held);
+         if (raw instanceof BsonDocument) {
+            return MetaReadUtil.readCapturedEntity((BsonDocument)raw);
+         }
+      } catch (Throwable ignored) {
+      }
+
+      return null;
    }
 
    private static boolean spawnNpcSafe(Store<EntityStore> store, NPCPlugin npcPlugin, int roleIndex, String nameKey, Vector3d pos) {
