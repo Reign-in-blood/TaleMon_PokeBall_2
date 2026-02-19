@@ -34,7 +34,7 @@ public final class TargetingUtil {
             forward.rotateX(headRot.getPitch());
             forward.normalize();
             Vector3d forwardDir = new Vector3d((double)forward.x, (double)forward.y, (double)forward.z);
-            com.reigninblood.TaleMon_PokeBall.util.TargetingUtil.BestCandidate best = new com.reigninblood.TaleMon_PokeBall.util.TargetingUtil.BestCandidate();
+            BestCandidate best = new BestCandidate();
             store.forEachChunk(Query.any(), (chunk, buffer) -> {
                int size = chunk.size();
 
@@ -49,10 +49,10 @@ public final class TargetingUtil {
                            Vector3d dir = (new Vector3d(toNpc)).normalize();
                            double dot = forwardDir.dot(dir);
                            if (!(dot < 0.7D)) {
-                              double score = dot / dist;
-                              if (score > best.score) {
+                                 double score = dot / dist;
+                                 if (score > best.score) {
                                  best.score = score;
-                                 best.uuid = npc.getUuid();
+                                 best.uuid = getEntityUuid(npc);
                               }
                            }
                         }
@@ -66,5 +66,24 @@ public final class TargetingUtil {
       } else {
          return null;
       }
+   }
+
+   @SuppressWarnings({"removal"})
+   private static UUID getEntityUuid(com.hypixel.hytale.server.core.entity.Entity entity) {
+      if (entity == null) {
+         return null;
+      }
+
+      try {
+         return (UUID)entity.getClass().getMethod("getUniqueId").invoke(entity);
+      } catch (Throwable ignored) {
+      }
+
+      try {
+         return (UUID)entity.getClass().getMethod("getUuid").invoke(entity);
+      } catch (Throwable ignored) {
+      }
+
+      return null;
    }
 }
