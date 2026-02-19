@@ -27,7 +27,7 @@ A minimal, ready-to-use template for creating Hytale plugins with modern build t
 
 ```bash
 git clone https://github.com/yourusername/hytale-plugin-template.git
-cd hytale-plugin-template
+cd hytale-plugin-TaleMon_PokeBall
 ```
 
 **The template builds immediately without any changes!**  

@@ -6,7 +6,7 @@ plugins {
 
 group = findProperty("pluginGroup") as String? ?: "com.example"
 version = findProperty("pluginVersion") as String? ?: "1.0.0"
-description = findProperty("pluginDescription") as String? ?: "A Hytale plugin template"
+description = findProperty("pluginDescription") as String? ?: "A Hytale plugin TaleMon_PokeBall"
 
 repositories {
     mavenLocal()
