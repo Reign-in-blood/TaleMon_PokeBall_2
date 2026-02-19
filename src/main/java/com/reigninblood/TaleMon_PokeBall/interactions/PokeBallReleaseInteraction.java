@@ -77,13 +77,11 @@ public class PokeBallReleaseInteraction extends SimpleInstantInteraction {
                            face = BlockFace.fromProtocolFace(context.getClientState().blockFace);
                         }
 
-                        Vector3d finalSpawnPos;
                         if (face != null) {
-                           finalSpawnPos = new Vector3d(face.getDirection());
-                           spawnPos.add(finalSpawnPos);
+                           spawnPos.add(new Vector3d(face.getDirection()));
                         }
 
-                        finalSpawnPos = SpawnPosUtil.makeSafe(spawnPos);
+                        final Vector3d finalSpawnPos = SpawnPosUtil.makeSafe(spawnPos);
                         Integer roleIndexValue = MetaReadUtil.readRoleIndex(meta);
                         if (roleIndexValue == null) {
                            HytaleLogger.getLogger().at(Level.INFO).log("[TaleMon_PokeBall] RELEASE_FAIL roleIndex unavailable");
