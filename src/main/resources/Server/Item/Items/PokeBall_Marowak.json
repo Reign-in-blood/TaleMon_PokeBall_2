@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.PokeBall_Seel.name"
+    "Name": "server.items.PokeBall_Marowak.name"
   },
   "Categories": [
     "Items.Weapons",
@@ -70,7 +70,7 @@
       -39.6
     ]
   },
-  "Icon": "Icons/ItemsGenerated/Beedrill.png",
+  "Icon": "Icons/ItemsGenerated/Marowak.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Tags": {
     "Type": [
