@@ -3,10 +3,7 @@ package com.reigninblood.TaleMon_PokeBall.util;
 
 import java.util.UUID;
 
-class TargetingUtil$BestCandidate {
-   double score = 0.0D;
+final class BestCandidate {
+   double score = Double.NEGATIVE_INFINITY;
    UUID uuid = null;
-
-   private TargetingUtil$BestCandidate() {
-   }
 }
