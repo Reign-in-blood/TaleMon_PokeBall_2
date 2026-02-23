@@ -307,3 +307,4 @@ npcRoles.Mewtwo.name = Mewtwo
 npcRoles.Mew.name = Mew
 
 items.PokeBall_Empty.description = Allows you to capture Pokemons.
+items.PokeBall_Empty.name = PokeBall
